@@ -1,31 +1,32 @@
 import React, { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import validation from '../utils/LoginValidation' 
+import validation from '../utils/LoginValidation'
 import axios from 'axios';
+import { api, app } from "../constants/index";
 
 function Login() {
-    const [values,setValues] = useState({
-        email : '',
-        password : ''
+    const [values, setValues] = useState({
+        email: '',
+        password: ''
     })
 
     const navigate = useNavigate();
 
-    const [errors,setErrors] = useState({})
+    const [errors, setErrors] = useState({})
 
-    const handleInput = (event)=>{
-        setValues (prev => ({...prev, [event.target.name] : event.target.value}))
+    const handleInput = (event) => {
+        setValues(prev => ({ ...prev, [event.target.name]: event.target.value }))
     }
 
-    const handleSubmit = (event) =>{
+    const handleSubmit = (event) => {
         event.preventDefault();
         setErrors(validation(values));
-        if(errors.email === "" && errors.password === ""){
-            axios.post('http://localhost:3001/user/login',values)
-            .then(res => {
-                navigate('/home')
-            })
-            .catch(err => console.log(err));
+        if (errors.email === "" && errors.password === "") {
+            axios.post(`${app.apiHost}${api.login}`, values)
+                .then(res => {
+                    navigate('/home')
+                })
+                .catch(err => console.log(err));
         }
     }
 
@@ -37,14 +38,14 @@ function Login() {
                     <div className='mb-3'>
                         <label htmlFor='email'><strong>Email</strong></label>
                         <input type='email' placeholder='Enter Your Email' name='email'
-                        onChange={handleInput} className='form-control rounded-0' />
+                            onChange={handleInput} className='form-control rounded-0' />
                         {errors.email && <span className='text-danger'>{errors.email}</span>}
                     </div>
 
                     <div className='mb-3'>
                         <label htmlFor='password'><strong>Password</strong></label>
                         <input type='password' placeholder='Enter Your password' name='password'
-                        onChange={handleInput} className='form-control rounded-0'  />
+                            onChange={handleInput} className='form-control rounded-0' />
                         {errors.password && <span className='text-danger'>{errors.password}</span>}
                     </div>
 

@@ -2,10 +2,11 @@ import React, { useEffect, useState } from "react";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEdit } from '@fortawesome/free-solid-svg-icons';
 import axios from 'axios'
+import { api, app } from "../constants/index";
 
 function Todo() {
-    const { editMode, setEditMode } = useState(false);
-    const { list, setList } = useState([]);
+    const [editMode, setEditMode] = useState(false);
+    const [list, setList] = useState([]);
     const [name, setName] = useState('');
     const [description, setDescription] = useState('');
     const [due_date, setDue_date] = useState('');
@@ -15,10 +16,8 @@ function Todo() {
 
     const showTodo = async () => {
         try {
-            const { data } = await axios.get('http://localhost:3001/task/')
-            console.log({data})
-            setList(data);
-            console.log(data)
+            const { data } = await axios.get(`${app.apiHost}${api.task}`)
+            setList(data.response);
         } catch (error) {
             console.log(error);
         }
@@ -27,7 +26,7 @@ function Todo() {
     const addToDo = async (e) => {
         e.preventDefault();
         try {
-            const add = await axios.post('http://localhost:3001/task/add', { name, description, due_date, status });
+            const add = await axios.post(`${app.apiHost}${api.task}`, { name, description, due_date, status });
             if (add.status === 200) {
                 setName('');
                 setDescription('');
@@ -43,24 +42,13 @@ function Todo() {
         }
     }
 
-    // const showSingleToDo = async (id) => {
-    //     setEditMode(true)
-    //     try {
-    //         const { data } = await axios.get(`http://localhost:3001/task/${id}`);
-    //         setName(data.name);
-    //         setDescription(data.description);
-    //         setDue_date(data.due_date);
-    //         setStatus(data.status);
-    //         setTaskid(data.taskid)
-    //     } catch (error) {
-    //         console.log(error)
-    //     }
-    // }
-
-    const editToDo = async (e) => {
+    const editToDo = async (e,taskid) => {
         e.preventDefault();
         try {
-            const add = await axios.put(`http://localhost:3001/task/edit/${taskid}`, { name, description, due_date, status });
+
+            const editUrl = api.editTask.replace(":id", taskid);
+
+            const add = await axios.put(`${app.apiHost}${editUrl}`, { name, description, due_date, status });
             if (add.status === 200) {
                 setName('');
                 setDescription('');
@@ -117,6 +105,7 @@ function Todo() {
                 <table className="table">
                     <thead>
                         <tr>
+                            <th scope="col">Sr. no</th>
                             <th scope="col">Name</th>
                             <th scope="col">Description</th>
                             <th scope="col">Due date</th>
@@ -126,13 +115,14 @@ function Todo() {
 
                         {
                             list && list.map(d => (
-                                <tr key={d.name}>
+                                <tr key={d.id}>
+                                    <td>{d.id}</td>
                                     <td>{d.name}</td>
                                     <td>{d.description}</td>
                                     <td>{d.due_date}</td>
                                     <td>{d.status}</td>
                                     <td>
-                                        <FontAwesomeIcon icon={faEdit} onClick={() => editToDo(d.id)} style={{ color: "green", cursor: "pointer", marginRight: "25px" }} />
+                                        <FontAwesomeIcon icon={faEdit} onClick={(e) => editToDo(e, d.id)} style={{ color: "green", cursor: "pointer", marginRight: "25px" }} />
                                     </td>
                                 </tr>
                             ))
